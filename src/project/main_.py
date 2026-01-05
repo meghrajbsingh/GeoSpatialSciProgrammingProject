@@ -2,6 +2,7 @@ import geopandas as gpd
 from pathlib import Path
 
 
+<<<<<<< HEAD
 # Load the geopackage
 data_path = Path(__file__).resolve().parents[2] / "data" / "fietsnetwerken_vrij.gpkg"
 
@@ -21,3 +22,5 @@ print("Regions in dataset:", regions)
 # get a count of how many road segments per region
 region_counts = gdf['regio'].value_counts()
 print(region_counts)
+=======
+>>>>>>> absek
