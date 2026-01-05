@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.pyc
+
+# Poetry / virtual environment
+.venv/
+poetry.lock
+
+# VS Code
+.vscode/
