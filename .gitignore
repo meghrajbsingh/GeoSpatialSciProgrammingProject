@@ -8,3 +8,7 @@ poetry.lock
 
 # VS Code
 .vscode/
+
+#Large Data Files
+data/verkeerstypen.json
+data/verkeerstypen_fiets.gpkg
