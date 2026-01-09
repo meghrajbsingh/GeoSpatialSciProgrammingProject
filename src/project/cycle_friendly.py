@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString, Point
-
+from pathlib import Path
 
 # --------------------------------------------------
 # Data loading & preprocessing
@@ -79,9 +79,12 @@ def analyze_study_area(routes, building_points):
     density = route_density(routes, study_area)
 
     return {
-        "pct_buildings_near_route": pct_buildings_near,
-        "avg_distance_to_route_m": avg_distance,
-        "route_density_km_per_km2": density
+        "metrics": {
+            "pct_buildings_near_route": pct_buildings_near,
+            "avg_distance_to_route_m": avg_distance,
+            "route_density_km_per_km2": density
+        },
+        "building_points": building_points
     }
 
 
@@ -128,13 +131,20 @@ def plot_summary_bar(metrics):
 # Script entry point
 # --------------------------------------------------
 def main():
-    cycle_routes_fp = "enschede_road_network.gpkg"
-    buildings_fp = "enschede_buildings.gpkg"
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    DATA_DIR = BASE_DIR / "data"
+
+    cycle_routes_fp = DATA_DIR / "enschede_road_network.gpkg"
+    buildings_fp = DATA_DIR / "enschede_buildings.gpkg"
 
     routes, buildings = load_data(cycle_routes_fp, buildings_fp)
     building_points = buildings
 
-    metrics = analyze_study_area(routes, building_points)
+    result = analyze_study_area(routes, building_points)
+
+    metrics = result["metrics"]
+    building_points = result["building_points"]
+
     print(pd.Series(metrics))
 
     plot_building_proximity(building_points)
