@@ -1,5 +1,5 @@
 [project]
-name = "geospatialsciprogrammingproject"
+name = "src"
 version = "0.1.0"
 description = ""
 authors = [
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 packages = [
-    { include = "project" , from = "."}
+    { include = "project" , from = "src" }   
 ]
 
 [build-system]
