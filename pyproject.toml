@@ -1,26 +1,22 @@
-[project]
-name = "src"
+[tool.poetry]
+name = "geospatialsciprogrammingproject"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Meghraj Singh, Abhishek Adhikari"}
-]
+authors = ["Meghraj Singh", "Abhishek Adhikari"]
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "geopandas (>=1.1.2,<2.0.0)",
-    "pyarrow (>=22.0.0,<23.0.0)"
-]
 
 packages = [
-    { include = "project" , from = "src" }   
+    { include = "project", from = "src" }
 ]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+geopandas = ">=1.1.2,<2.0.0"
+pyarrow = ">=22.0.0,<23.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=9.0.2,<10.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[dependency-groups]
-dev = [
-    "pytest (>=9.0.2,<10.0.0)"
-]

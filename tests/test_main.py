@@ -1,4 +1,5 @@
 import geopandas as gpd
+import math
 from shapely.geometry import LineString, Point
 
 from project.cycle_friendly import (
@@ -11,6 +12,7 @@ from project.cycle_friendly import (
 
 
 def test_buffer_routes():
+    """Test that buffer_routes returns polygons around a line geometry."""
     test_line = gpd.GeoDataFrame(
         geometry=[LineString([(0, 0), (0, 10)])],
         crs="EPSG:28992"
@@ -20,6 +22,7 @@ def test_buffer_routes():
 
 
 def test_buildings_near_routes_basic():
+    """Test that buildings_near_routes calculates correct percentage of buildings near a route."""
     buildings = gpd.GeoDataFrame(
         geometry=[Point(0, 0), Point(100, 100)],
         crs="EPSG:28992"
@@ -36,6 +39,7 @@ def test_buildings_near_routes_basic():
 
 
 def test_nearest_route_distance():
+    """Test that nearest_route_distance calculates the correct distance from buildings to routes."""
     buildings = gpd.GeoDataFrame(
         geometry=[Point(0, 0)],
         crs="EPSG:28992"
@@ -50,6 +54,7 @@ def test_nearest_route_distance():
 
 
 def test_route_density_simple_case():
+    """Test that route_density computes the expected density for a simple route and area."""
     routes = gpd.GeoDataFrame(
         geometry=[LineString([(0, 0), (0, 1000)])],
         crs="EPSG:28992"
@@ -63,6 +68,7 @@ def test_route_density_simple_case():
 
 
 def test_analyze_study_area_outputs():
+    """Test that analyze_study_area returns all required metric keys in the result and also tests if it returns the buildings dataframe with nearest route column."""
     routes = gpd.GeoDataFrame(
         geometry=[LineString([(0, 0), (0, 100)])],
         crs="EPSG:28992"
@@ -72,23 +78,36 @@ def test_analyze_study_area_outputs():
         crs="EPSG:28992"
     )
 
-    metrics = analyze_study_area(routes, buildings)
+    result = analyze_study_area(routes, buildings)
 
+    # Check that metrics contain the required keys
     required_keys = {
         "pct_buildings_near_route",
         "avg_distance_to_route_m",
         "route_density_km_per_km2"
     }
+    assert required_keys.issubset(result["metrics"].keys())
 
-    assert required_keys.issubset(metrics.keys())
+    # Check that building_points are returned
+    building_points = result["building_points"]
+    assert isinstance(building_points, gpd.GeoDataFrame)
+
+    # Check that the 'nearest_route_m' column exists and has numeric values
+    assert "nearest_route_m" in building_points.columns
+    assert all(isinstance(val, (float, int)) for val in building_points["nearest_route_m"])
+
 
 
 def test_empty_buildings_handling():
+    """Test that analyze_study_area handles an empty buildings GeoDataFrame and returns NaN metrics."""
     routes = gpd.GeoDataFrame(
         geometry=[LineString([(0, 0), (0, 100)])],
         crs="EPSG:28992"
     )
     buildings = gpd.GeoDataFrame(geometry=[], crs="EPSG:28992")
 
-    metrics = analyze_study_area(routes, buildings)
-    assert metrics["pct_buildings_near_route"] != metrics["pct_buildings_near_route"]  # NaN
+    result = analyze_study_area(routes, buildings)
+    metrics = result["metrics"]
+    assert math.isnan(metrics["pct_buildings_near_route"])
+    assert math.isnan(metrics["avg_distance_to_route_m"])
+    assert math.isnan(metrics["route_density_km_per_km2"])
