@@ -124,6 +124,7 @@ def plot_summary_bar(metrics):
     plt.show()
 
 # --------------------------------------------------
+<<<<<<< HEAD
 # Script entry point
 # --------------------------------------------------
 def main():
@@ -148,6 +149,11 @@ if __name__ == "__main__":
 # REST API (FastAPI) interface
 # --------------------------------------------------
 
+=======
+# REST API (FastAPI) interface
+# --------------------------------------------------
+
+>>>>>>> 19a6ee7 (added REST API for metrics)
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
@@ -205,4 +211,8 @@ def get_cycling_metrics(
     routes, buildings = load_data(cycle_routes_fp, buildings_fp)
     result = analyze_study_area(routes, buildings)
 
+<<<<<<< HEAD
     return result["metrics"]
+=======
+    return result["metrics"]
+>>>>>>> 19a6ee7 (added REST API for metrics)
