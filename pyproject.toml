@@ -5,9 +5,23 @@ description = ""
 authors = ["Meghraj Singh", "Abhishek Adhikari"]
 readme = "README.md"
 
+<<<<<<< Updated upstream
 packages = [
     { include = "project", from = "src" }
 ]
+=======
+[tool.poetry.dependencies]
+python = ">=3.11"
+geopandas = ">=1.1.2,<2.0.0"
+pyarrow = ">=22.0.0,<23.0.0"
+matplotlib = "^3.10.8"
+pandas = "^2.3.3"
+fastapi = "^0.128.0"
+uvicorn = "^0.40.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=9.0.2,<10.0.0"
+>>>>>>> Stashed changes
 
 [tool.poetry.dependencies]
 python = ">=3.11"

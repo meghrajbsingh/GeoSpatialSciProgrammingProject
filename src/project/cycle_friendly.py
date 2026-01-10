@@ -2,24 +2,12 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString, Point
-from pathlib import Path
+
 
 # --------------------------------------------------
 # Data loading & preprocessing
 # --------------------------------------------------
 def load_data(cycle_route_fp, buildings_fp, target_crs=28992):
-    """
-    Load cycle route and building data from files, remove empty geometries,
-    and reproject to the target CRS (default EPSG:28992).
-    
-    Args:
-        cycle_route_fp (str or Path): File path to cycle routes.
-        buildings_fp (str or Path): File path to buildings.
-        target_crs (int): EPSG code to reproject geometries.
-    
-    Returns:
-        tuple[GeoDataFrame, GeoDataFrame]: routes and buildings GeoDataFrames.
-    """
     routes = gpd.read_file(cycle_route_fp)
     buildings = gpd.read_file(buildings_fp)
 
@@ -36,30 +24,10 @@ def load_data(cycle_route_fp, buildings_fp, target_crs=28992):
 # Core analysis functions
 # --------------------------------------------------
 def buffer_routes(routes, distance_m=100):
-    """
-    Create a buffer polygon around each route.
-
-    Args:
-        routes (GeoDataFrame): Line geometries representing routes.
-        distance_m (float): Buffer distance in meters.
-
-    Returns:
-        GeoSeries: Buffered polygons around routes.
-    """
     return routes.geometry.buffer(distance_m)
 
 
 def buildings_near_routes(building_points, routes_buffer):
-    """
-    Compute the percentage of buildings located within route buffers.
-
-    Args:
-        building_points (GeoDataFrame): Point geometries of buildings.
-        routes_buffer (GeoSeries): Buffered polygons of routes.
-
-    Returns:
-        float: Percentage of buildings near routes, or NaN if no buildings.
-    """
     if building_points.empty:
         return float("nan")
 
@@ -82,21 +50,11 @@ def buildings_near_routes(building_points, routes_buffer):
 
 
 def nearest_route_distance(building_points, routes):
-    """
-    Compute distance from each building to the nearest route.
-
-    Args:
-        building_points (GeoDataFrame): Point geometries of buildings.
-        routes (GeoDataFrame): Line geometries of routes.
-
-    Returns:
-        GeoDataFrame: Buildings with a new column 'nearest_route_m'.
-    """
     if building_points.empty:
         building_points["nearest_route_m"] = float("nan")
         return building_points
 
-    routes_union = routes.geometry.union_all()
+    routes_union = routes.geometry.unary_union
     building_points = building_points.copy()
     building_points["nearest_route_m"] = (
         building_points.geometry.distance(routes_union)
@@ -105,57 +63,25 @@ def nearest_route_distance(building_points, routes):
 
 
 def route_density(routes, area_polygon):
-    """
-    Compute cycling route density as total route length per unit area.
-
-    Args:
-        routes (GeoDataFrame): Line geometries of routes.
-        area_polygon (shapely Polygon): Polygon defining the study area.
-
-    Returns:
-        float: Route density in km per km², or NaN if area is empty.
-    """
-    if area_polygon.is_empty or area_polygon.area == 0:
-        return float("nan")
     total_length_km = routes.length.sum() / 1000
     area_km2 = area_polygon.area / 1e6
     return total_length_km / area_km2
 
 
 def analyze_study_area(routes, building_points):
-    """
-    Analyze the study area for cycling-friendliness metrics.
-
-    Computes:
-      - Percentage of buildings near routes
-      - Average distance of buildings to nearest route
-      - Route density in the study area
-
-    Args:
-        routes (GeoDataFrame): Line geometries of cycling routes.
-        building_points (GeoDataFrame): Point geometries of buildings.
-
-    Returns:
-        dict: 
-            - 'metrics': dictionary with computed metrics
-            - 'building_points': GeoDataFrame with nearest route distances
-    """
     buffer_100m = buffer_routes(routes, distance_m=100)
     pct_buildings_near = buildings_near_routes(building_points, buffer_100m)
 
     building_points = nearest_route_distance(building_points, routes)
     avg_distance = building_points["nearest_route_m"].mean()
 
-    study_area = building_points.union_all().convex_hull
+    study_area = building_points.unary_union.convex_hull
     density = route_density(routes, study_area)
 
     return {
-        "metrics": {
-            "pct_buildings_near_route": pct_buildings_near,
-            "avg_distance_to_route_m": avg_distance,
-            "route_density_km_per_km2": density
-        },
-        "building_points": building_points
+        "pct_buildings_near_route": pct_buildings_near,
+        "avg_distance_to_route_m": avg_distance,
+        "route_density_km_per_km2": density
     }
 
 
@@ -163,12 +89,6 @@ def analyze_study_area(routes, building_points):
 # Plotting utilities
 # --------------------------------------------------
 def plot_building_proximity(building_points):
-    """
-    Plot building locations colored by distance to nearest route.
-
-    Args:
-        building_points (GeoDataFrame): Must include 'nearest_route_m' column.
-    """
     fig, ax = plt.subplots(figsize=(10, 10))
     building_points.plot(
         column="nearest_route_m",
@@ -183,13 +103,6 @@ def plot_building_proximity(building_points):
 
 
 def plot_pairwise_density_vs_distance(metrics):
-    """
-    Scatter plot of route density vs average building distance.
-
-    Args:
-        metrics (dict): Dictionary containing 'route_density_km_per_km2' 
-                        and 'avg_distance_to_route_m'.
-    """
     plt.figure(figsize=(6, 6))
     plt.scatter(
         metrics["route_density_km_per_km2"],
@@ -203,12 +116,6 @@ def plot_pairwise_density_vs_distance(metrics):
 
 
 def plot_summary_bar(metrics):
-    """
-    Plot a bar chart summarizing cycling-friendliness metrics.
-
-    Args:
-        metrics (dict): Dictionary of metrics to plot.
-    """
     df = pd.DataFrame.from_dict(metrics, orient="index", columns=["Value"])
     df.plot(kind="bar", legend=False, figsize=(8, 5))
     plt.title("Cycling-Friendliness Metrics")
@@ -223,6 +130,7 @@ def plot_summary_bar(metrics):
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
+from pathlib import Path
 
 app = FastAPI(
     title="Cycling-Friendliness API",

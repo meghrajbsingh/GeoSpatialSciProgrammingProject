@@ -1,3 +1,7 @@
+<<<<<<< Updated upstream
+# GeoSpatialSciProgrammingProject
+Group Assignment for Sci Programming Course
+=======
 # GeoSpatial Bike Project
 
 This project analyzes cycling-friendliness metrics in Enschede by evaluating the accessibility of buildings to cycling routes. It calculates metrics such as:
@@ -86,6 +90,7 @@ python -m project.main
 
 This will print the metrics and generate plots.
 
+
 ### Dependencies
 
 The project dependencies are managed via Poetry and listed in pyproject.toml and poetry.lock. Key dependencies include:
@@ -109,3 +114,32 @@ enschede_road_network.gpkg
 enschede_buildings.gpkg
 
 All plots are generated using matplotlib.
+
+
+## Running the REST API
+
+The package provides a RESTful API to expose cycling-friendliness metrics via **FastAPI**.
+
+### 1. Start the API
+
+Activate your virtual environment and run:
+
+```bash
+uvicorn project.cycle_friendly:app --reload
+```
+
+The API runs at:
+
+```bash
+http://127.0.0.1:8000/docs
+```
+
+You can input the paths to your cycle routes and building files directly and execute to get JSON results.
+
+You can also make a direct API call using /metrics endpoint which requires two parameters:
+-routes_fp: Path to the cycling routes file
+-buildings_fp: Path to the buildings file
+
+### Notes
+- Paths must exist and can be absolute or relative to the environment where the API runs
+- The wheel does not include data files; you must provide your own
