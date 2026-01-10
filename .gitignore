@@ -12,3 +12,10 @@ poetry.lock
 #Large Data Files
 data/verkeerstypen.json
 data/verkeerstypen_fiets.gpkg
+
+
+# Python packaging
+dist/
+*.egg-info/
+build/
+__pycache__/
