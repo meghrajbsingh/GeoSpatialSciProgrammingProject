@@ -131,7 +131,7 @@ The package provides a RESTful API to expose cycling-friendliness metrics via **
 Activate your virtual environment and run:
 
 ```bash
-uvicorn project.cycle_friendly:app --reload
+poetry run uvicorn project.api:app --reload
 ```
 
 The API runs at:
