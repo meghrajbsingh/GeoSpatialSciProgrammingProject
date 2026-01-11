@@ -1,7 +1,9 @@
 <<<<<<< Updated upstream
+
 # GeoSpatialSciProgrammingProject
-Group Assignment for Sci Programming Course
-=======
+
+# Group Assignment for Sci Programming Course
+
 # GeoSpatial Bike Project
 
 This project analyzes cycling-friendliness metrics in Enschede by evaluating the accessibility of buildings to cycling routes. It calculates metrics such as:
@@ -36,6 +38,12 @@ poetry install
 
 ```bash
 poetry run python -m project.main
+```
+
+Or :
+
+```bash
+poetry run geospatial-bike
 ```
 
 2. Running Tests :
@@ -90,7 +98,6 @@ python -m project.main
 
 This will print the metrics and generate plots.
 
-
 ### Dependencies
 
 The project dependencies are managed via Poetry and listed in pyproject.toml and poetry.lock. Key dependencies include:
@@ -114,7 +121,6 @@ enschede_road_network.gpkg
 enschede_buildings.gpkg
 
 All plots are generated using matplotlib.
-
 
 ## Running the REST API
 
@@ -141,5 +147,6 @@ You can also make a direct API call using /metrics endpoint which requires two p
 -buildings_fp: Path to the buildings file
 
 ### Notes
+
 - Paths must exist and can be absolute or relative to the environment where the API runs
 - The wheel does not include data files; you must provide your own
